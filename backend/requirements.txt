@@ -1,0 +1,4 @@
+fastapi
+mangum
+PyPDF2
+boto3

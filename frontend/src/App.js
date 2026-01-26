@@ -48,7 +48,7 @@ const App = () => {
 
   try {
     const response = await axios.post(
-      "http://localhost:8000/upload",
+      "https://fastapi-backend-FastApiFunction-DCjg2U0q8LaP.execute-api.us-east-1.amazonaws.com/Prod/hello",
       formData,
       {
         responseType: "blob", // 👈 CRITICAL

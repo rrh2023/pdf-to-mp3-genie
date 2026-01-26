@@ -1,18 +1,84 @@
-AWSTemplateFormatVersion: "2010-09-09"
+AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 
+Globals:
+  Function:
+    Timeout: 300
+    MemorySize: 1024
+  Api:
+    Auth:
+      ApiKeyRequired: true  # Add this
+
 Resources:
-  FastApiFunction:
+  PDFToSpeechFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Runtime: python3.12
-      Handler: app.main.handler
-      CodeUri: .
-      MemorySize: 512
-      Timeout: 15
+      CodeUri: ./
+      Handler: app.handler
+      Runtime: python3.11
+      Architectures:
+        - x86_64
+      Environment:
+        Variables:
+          AWS_REGION: us-east-1
+      Policies:
+        - Statement:
+          - Effect: Allow
+            Action:
+              - polly:SynthesizeSpeech
+            Resource: '*'
       Events:
-        Api:
-          Type: HttpApi
+        RootApi:
+          Type: Api
           Properties:
-            Path: /{proxy+}
-            Method: ANY
+            Path: /
+            Method: GET
+            Auth:
+              ApiKeyRequired: true
+        UploadApi:
+          Type: Api
+          Properties:
+            Path: /upload
+            Method: POST
+            Auth:
+              ApiKeyRequired: true
+      EphemeralStorage:
+        Size: 1024
+
+  # Add API Key
+  ApiKey:
+    Type: AWS::ApiGateway::ApiKey
+    Properties:
+      Name: PDFToSpeechApiKey
+      Enabled: true
+
+  # Add Usage Plan
+  UsagePlan:
+    Type: AWS::ApiGateway::UsagePlan
+    DependsOn: ServerlessRestApiProdStage
+    Properties:
+      ApiStages:
+        - ApiId: !Ref ServerlessRestApi
+          Stage: Prod
+      Throttle:
+        BurstLimit: 100
+        RateLimit: 50
+      Quota:
+        Limit: 10000
+        Period: MONTH
+
+  # Link API Key to Usage Plan
+  UsagePlanKey:
+    Type: AWS::ApiGateway::UsagePlanKey
+    Properties:
+      KeyId: !Ref ApiKey
+      KeyType: API_KEY
+      UsagePlanId: !Ref UsagePlan
+
+Outputs:
+  ApiUrl:
+    Description: "API Gateway endpoint URL"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+  ApiKeyId:
+    Description: "API Key ID - use AWS CLI to get the value"
+    Value: !Ref ApiKey
