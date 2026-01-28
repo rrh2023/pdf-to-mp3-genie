@@ -44,13 +44,10 @@ const App = () => {
 
   const formData = new FormData();
   formData.append("file", file);
-
-  // Use environment variable with fallback for local development
-  const API_URL = import.meta.env.API_URL || "http://localhost:8000";
   
   try {
     const response = await axios.post(
-      `${API_URL}/upload`,  // Changed from root to /upload endpoint
+      `https://pdf-to-mp3-genie.onrender.com}/upload`,  // Changed from root to /upload endpoint
       formData,
       {
         responseType: "blob", 
