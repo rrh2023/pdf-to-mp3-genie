@@ -45,10 +45,10 @@ const App = () => {
   const formData = new FormData();
   formData.append("file", file);
 
-
+  const API_URL = process.env.API_URL
   try {
     const response = await axios.post(
-      "https://pdf-to-mp3-genie.onrender.com/",
+      `${API_URL}/upload`,
       formData,
       {
         responseType: "blob", 
