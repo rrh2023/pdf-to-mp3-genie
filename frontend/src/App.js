@@ -48,7 +48,7 @@ const App = () => {
 
   try {
     const response = await axios.post(
-      "http://localhost:8000/upload",
+      "https://pdf-to-mp3-genie.onrender.com/",
       formData,
       {
         responseType: "blob", 
