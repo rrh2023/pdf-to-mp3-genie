@@ -39,34 +39,43 @@ const App = () => {
     setFile(null);
   };
 
-  const handleUpload = async () => {
+ const handleUpload = async () => {
   if (!file) return alert("Please upload a PDF");
 
   const formData = new FormData();
   formData.append("file", file);
 
-  const API_URL = process.env.API_URL
- try {
-  const response = await axios.post(
-    `https://pdf-to-mp3-genie.onrender.com/upload`,
-    formData,
-    {
-      responseType: "blob", 
+  // Use environment variable with fallback for local development
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+  
+  try {
+    const response = await axios.post(
+      `http://localhost:8000/upload`,  // Changed from root to /upload endpoint
+      formData,
+      {
+        responseType: "blob", 
+      }
+    );
+
+    const url = window.URL.createObjectURL(response.data);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "output.mp3";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    if (error.response) {
+      console.error('Status:', error.response.status);
+      const text = await error.response.data.text();
+      console.error('Error message:', text);
+      alert('Upload failed: ' + text);
+    } else {
+      console.error('Request failed:', error.message);
+      alert('Upload failed: ' + error.message);
     }
-  );
-
-  const url = window.URL.createObjectURL(response.data);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "output.mp3";
-  document.body.appendChild(a); // Some browsers need this
-  a.click();
-  document.body.removeChild(a);
-
-  setTimeout(() => window.URL.revokeObjectURL(url), 100);
-} catch (error) {
-  console.error("Error:", error);
-}
+  }
 };
 
 
