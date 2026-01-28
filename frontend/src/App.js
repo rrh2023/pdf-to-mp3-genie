@@ -46,7 +46,7 @@ const App = () => {
   formData.append("file", file);
 
   // Use environment variable with fallback for local development
-  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+  const API_URL = import.meta.env.API_URL || "http://localhost:8000";
   
   try {
     const response = await axios.post(
