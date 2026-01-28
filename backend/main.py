@@ -1,14 +1,12 @@
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
-from mangum import Mangum
 import PyPDF2
-import pyttsx3
+from gtts import gTTS  # Changed from pyttsx3
 import uuid
 import os
 
 app = FastAPI()
-handler = Mangum(app)
 
 UPLOAD_DIR = "uploads"
 OUTPUT_DIR = "outputs"
@@ -29,27 +27,39 @@ async def upload_pdf(file: UploadFile = File(...)):
     pdf_path = f"{UPLOAD_DIR}/{uuid.uuid4()}.pdf"
     mp3_path = f"{OUTPUT_DIR}/{uuid.uuid4()}.mp3"
 
-    # Save PDF
-    with open(pdf_path, "wb") as f:
-        f.write(await file.read())
+    try:
+        # Save PDF
+        with open(pdf_path, "wb") as f:
+            f.write(await file.read())
 
-    # Read PDF
-    reader = PyPDF2.PdfReader(open(pdf_path, "rb"))
-    text = ""
+        # Read PDF
+        reader = PyPDF2.PdfReader(open(pdf_path, "rb"))
+        text = ""
 
-    for page in reader.pages:
-        extracted = page.extract_text()
-        if extracted:
-            text += extracted.replace("\n", " ")
+        for page in reader.pages:
+            extracted = page.extract_text()
+            if extracted:
+                text += extracted.replace("\n", " ")
 
-    # Text to speech
-    engine = pyttsx3.init()
-    engine.save_to_file(text, mp3_path)
-    engine.runAndWait()
-    engine.stop()
+        if not text.strip():
+            raise HTTPException(status_code=400, detail="No text found in PDF")
 
-    return FileResponse(
-        mp3_path,
-        media_type="audio/mpeg",
-        filename="output.mp3"
-    )
+        # Text to speech using gTTS
+        tts = gTTS(text=text, lang='en')
+        tts.save(mp3_path)
+
+        return FileResponse(
+            mp3_path,
+            media_type="audio/mpeg",
+            filename="output.mp3"
+        )
+    
+    finally:
+        # Cleanup files after response is sent
+        if os.path.exists(pdf_path):
+            os.remove(pdf_path)
+        # Note: mp3_path will be cleaned up by FileResponse's background task
+
+@app.get("/")
+async def root():
+    return {"message": "PDF to Audio API is running"}
