@@ -48,7 +48,7 @@ const App = () => {
   const API_URL = process.env.API_URL
   try {
     const response = await axios.post(
-      `${API_URL}/upload`,
+      `https://pdf-to-mp3-genie.onrender.com/upload`,
       formData,
       {
         responseType: "blob", 
