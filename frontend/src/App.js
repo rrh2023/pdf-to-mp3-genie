@@ -47,7 +47,7 @@ const App = () => {
   
   try {
     const response = await axios.post(
-      `https://pdf-to-mp3-genie.onrender.com}/upload`,  // Changed from root to /upload endpoint
+      `https://pdf-to-mp3-genie.onrender.com/upload`,  // Changed from root to /upload endpoint
       formData,
       {
         responseType: "blob", 
