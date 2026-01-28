@@ -46,26 +46,27 @@ const App = () => {
   formData.append("file", file);
 
   const API_URL = process.env.API_URL
-  try {
-    const response = await axios.post(
-      `https://pdf-to-mp3-genie.onrender.com/upload`,
-      formData,
-      {
-        responseType: "blob", 
-      }
-    );
+ try {
+  const response = await axios.post(
+    `https://pdf-to-mp3-genie.onrender.com/upload`,
+    formData,
+    {
+      responseType: "blob", 
+    }
+  );
 
-    const url = window.URL.createObjectURL(response.data);
+  const url = window.URL.createObjectURL(response.data);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "output.mp3";
+  document.body.appendChild(a); // Some browsers need this
+  a.click();
+  document.body.removeChild(a);
 
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "output.mp3";
-    a.click();
-
-    window.URL.revokeObjectURL(url);
-  } catch (error) {
-    console.error("Error:", error);
-  }
+  setTimeout(() => window.URL.revokeObjectURL(url), 100);
+} catch (error) {
+  console.error("Error:", error);
+}
 };
 
 
