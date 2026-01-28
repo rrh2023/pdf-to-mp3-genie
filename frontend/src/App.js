@@ -50,7 +50,7 @@ const App = () => {
   
   try {
     const response = await axios.post(
-      `http://localhost:8000/upload`,  // Changed from root to /upload endpoint
+      `${API_URL}/upload`,  // Changed from root to /upload endpoint
       formData,
       {
         responseType: "blob", 
