@@ -37,10 +37,11 @@ npm start
 
 API
 
-POST /api/convert
+POST /api/upload
 Upload a PDF → receive an MP3.
 
 ---
 
 License
+
 MIT
