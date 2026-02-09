@@ -35,9 +35,9 @@ npm start
 
 ---
 
-API
+## API
 
-POST /api/upload
+**POST /api/upload**
 
 Upload a PDF → receive an MP3.
 
@@ -46,4 +46,5 @@ Upload a PDF → receive an MP3.
 License
 
 MIT
+
 
